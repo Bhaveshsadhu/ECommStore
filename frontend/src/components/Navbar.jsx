@@ -1,36 +1,57 @@
-import { Link } from "react-router-dom";
-import logo from "../assets/images/logo.png"; // adjust based on your structure
+import { Link, useNavigate } from "react-router-dom";
 import { TbBrandAppstore } from "react-icons/tb";
+import { FaShoppingCart } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../features/auth/authThunks.js";
+import { toast } from "react-toastify";
+
 const Navbar = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    // Get data from Redux
+    const { user, isAuthenticated } = useSelector((state) => state.auth);
+    const { cartItems } = useSelector((state) => state.cart);
+
+    const handleLogout = () => {
+        const result = dispatch(logoutUser());
+
+        if (logoutUser.fulfilled.match(result)) {
+            toast.success("Logged out successfully!");
+            navigate("/");
+        }
+
+        if (logoutUser.rejected.match(result)) {
+            toast.error("Logout failed. Please try again.");
+        }
+    };
+
     return (
         <header className="header_section">
             <div className="container">
                 <nav className="navbar navbar-expand-lg custom_nav-container">
-                    {/* Logo */}
-                    <Link className="navbar-brand pt-0" to="/">
+
+                    {/* LOGO */}
+                    <Link className="navbar-brand pt-0 d-flex align-items-center" to="/">
                         <span className="brand-icon"><TbBrandAppstore /></span>
                         <span className="brand-text ms-2">ECommStore</span>
-
                     </Link>
 
-
-                    {/* Toggler */}
+                    {/* MOBILE TOGGLER */}
                     <button
                         className="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation"
                     >
                         <span></span>
                     </button>
 
-                    {/* Menu */}
+                    {/* MENU ITEMS */}
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav">
+                        <ul className="navbar-nav ms-auto align-items-center">
 
+                            {/* Default Links */}
                             <li className="nav-item">
                                 <Link className="nav-link" to="/">Home</Link>
                             </li>
@@ -47,22 +68,72 @@ const Navbar = () => {
                                 <Link className="nav-link" to="/contact">Contact</Link>
                             </li>
 
-                            {/* Cart Icon */}
-                            <li className="nav-item">
+                            {/* CART WITH COUNT */}
+                            <li className="nav-item position-relative">
                                 <Link className="nav-link" to="/cart">
-                                    <i className="fa fa-shopping-cart"></i>
+                                    <FaShoppingCart size={20} />
+
+                                    {/* Cart Number */}
+                                    {cartItems.length > 0 && (
+                                        <span className="cart-count">{cartItems.length}</span>
+                                    )}
                                 </Link>
                             </li>
 
-                            {/* Search Button */}
-                            <form className="form-inline">
-                                <button
-                                    className="btn my-2 my-sm-0 nav_search-btn"
-                                    type="button"
-                                >
-                                    <i className="fa fa-search"></i>
-                                </button>
-                            </form>
+                            {/* AUTH SECTION */}
+                            {!isAuthenticated ? (
+                                <>
+                                    {/* WHEN NOT LOGGED IN */}
+                                    <li className="nav-item ms-3">
+                                        <Link className="btn btn-outline-dark btn-sm" to="/login">
+                                            Login
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item ms-2">
+                                        <Link className="btn btn-danger btn-sm" to="/register">
+                                            Register
+                                        </Link>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    {/* WHEN LOGGED IN */}
+                                    <li className="nav-item dropdown ms-3">
+                                        <button
+                                            className="btn btn-outline-dark dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
+                                            {user?.name} <span className="text-danger">({user?.role})</span>
+                                        </button>
+
+                                        <ul className="dropdown-menu">
+                                            <li>
+                                                <button className="dropdown-item">Profile</button>
+                                            </li>
+
+                                            {user.role === "admin" && (
+                                                <li>
+                                                    <button className="dropdown-item">Admin Dashboard</button>
+                                                </li>
+                                            )}
+
+                                            {user.role === "vendor" && (
+                                                <li>
+                                                    <button className="dropdown-item">Vendor Panel</button>
+                                                </li>
+                                            )}
+
+                                            <li>
+                                                <button className="dropdown-item text-danger" onClick={handleLogout}>
+                                                    Logout
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </>
+                            )}
+
                         </ul>
                     </div>
                 </nav>
