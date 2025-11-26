@@ -13,8 +13,8 @@ const Navbar = () => {
     const { user, isAuthenticated } = useSelector((state) => state.auth);
     const { cartItems } = useSelector((state) => state.cart);
 
-    const handleLogout = () => {
-        const result = dispatch(logoutUser());
+    const handleLogout = async () => {
+        const result = await dispatch(logoutUser());
 
         if (logoutUser.fulfilled.match(result)) {
             toast.success("Logged out successfully!");

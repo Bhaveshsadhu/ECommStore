@@ -7,6 +7,8 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import { securityMiddleware } from "./middleware/securityMiddleware.js";
+import path from "path";
+
 
 dotenv.config();
 const app = express();
@@ -30,6 +32,10 @@ if (process.env.NODE_ENV === "development") {
 
 // Security middlewares (helmet, xss-clean, mongo-sanitize, rate-limit)
 securityMiddleware(app);
+
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 
 // Routes
 app.use("/api/auth", authRoutes);

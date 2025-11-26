@@ -1,31 +1,50 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../features/auth/authThunks";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 
 const RegisterPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
+        phone: "",
+        address: "",
         role: "user",
+        profileImage: null, // file only
     });
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+        if (e.target.name === "profileImage") {
+            setFormData({ ...formData, profileImage: e.target.files[0] });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = dispatch(registerUser(formData));
+
+        // CREATE FORM DATA (important for image upload)
+        const fd = new FormData();
+        fd.append("name", formData.name);
+        fd.append("email", formData.email);
+        fd.append("password", formData.password);
+        fd.append("phone", formData.phone);
+        fd.append("address", formData.address);
+        fd.append("role", formData.role);
+
+        if (formData.profileImage) {
+            fd.append("profileImage", formData.profileImage);
+        }
+
+        const result = await dispatch(registerUser(fd));
 
         if (registerUser.fulfilled.match(result)) {
             toast.success("Registration successful! Please login.");
@@ -35,7 +54,6 @@ const RegisterPage = () => {
         if (registerUser.rejected.match(result)) {
             toast.error(result.payload || "Registration failed");
         }
-
     };
 
     return (
@@ -44,19 +62,17 @@ const RegisterPage = () => {
             <section className="py-5" style={{ minHeight: "80vh", background: "#f8f9fa" }}>
                 <div className="container d-flex justify-content-center">
                     <div className="card shadow-lg p-4" style={{ maxWidth: "450px", width: "100%" }}>
-
                         <h2 className="text-center mb-4 fw-bold">Register</h2>
 
                         <form onSubmit={handleSubmit}>
 
-                            {/* NAME */}
+                            {/* FULL NAME */}
                             <div className="mb-3">
                                 <label className="form-label fw-bold">Full Name</label>
                                 <input
                                     type="text"
                                     name="name"
                                     className="form-control"
-                                    placeholder="Enter your full name"
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
@@ -70,10 +86,45 @@ const RegisterPage = () => {
                                     type="email"
                                     name="email"
                                     className="form-control"
-                                    placeholder="Enter your email"
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
+                                />
+                            </div>
+
+                            {/* PHONE */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Phone Number</label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    className="form-control"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {/* ADDRESS */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Address</label>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    className="form-control"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {/* PROFILE IMAGE */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Profile Image</label>
+                                <input
+                                    type="file"
+                                    name="profileImage"
+                                    className="form-control"
+                                    accept="image/*"
+                                    onChange={handleChange}
                                 />
                             </div>
 
@@ -84,14 +135,13 @@ const RegisterPage = () => {
                                     type="password"
                                     name="password"
                                     className="form-control"
-                                    placeholder="Create a password"
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
 
-                            {/* ROLE (optional) */}
+                            {/* ROLE */}
                             <div className="mb-3">
                                 <label className="form-label fw-bold">Account Type</label>
                                 <select
@@ -121,7 +171,6 @@ const RegisterPage = () => {
                             </div>
 
                         </form>
-
                     </div>
                 </div>
             </section>

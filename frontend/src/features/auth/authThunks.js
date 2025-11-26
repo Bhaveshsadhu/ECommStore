@@ -8,25 +8,39 @@ import { toast } from "react-toastify";
 // ================================
 // 1. REGISTER USER
 // ================================
+// export const registerUser = createAsyncThunk(
+//     "auth/registerUser",
+//     async (formData, { rejectWithValue, dispatch }) => {
+//         try {
+//             const res = await api.post("/auth/register", formData, {
+//                 withCredentials: true, // important for refreshToken cookie
+//             });
+
+//             // Save user into redux
+//             dispatch(setCredentials({ user: res.data.user }));
+
+//             return res.data.user;
+//         } catch (err) {
+//             return rejectWithValue(
+//                 err.response?.data?.message || "Registration failed"
+//             );
+//         }
+//     }
+// );
 export const registerUser = createAsyncThunk(
     "auth/registerUser",
-    async (formData, { rejectWithValue, dispatch }) => {
+    async (formData, { rejectWithValue }) => {
         try {
-            const res = await api.post("/api/auth/register", formData, {
-                withCredentials: true, // important for refreshToken cookie
+            const res = await api.post("/auth/register", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
             });
-
-            // Save user into redux
-            dispatch(setCredentials({ user: res.data.user }));
-
-            return res.data.user;
-        } catch (err) {
-            return rejectWithValue(
-                err.response?.data?.message || "Registration failed"
-            );
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Registration failed");
         }
     }
 );
+
 
 // ================================
 // 2. LOGIN USER
@@ -64,7 +78,7 @@ export const loadUser = createAsyncThunk(
     "auth/loadUser",
     async (_, { rejectWithValue, dispatch }) => {
         try {
-            const res = await axios.get("/api/auth/me", {
+            const res = await api.get("/auth/profile", {
                 withCredentials: true, // allows refresh route to work
             });
 
@@ -84,12 +98,14 @@ export const logoutUser = createAsyncThunk(
     "auth/logoutUser",
     async (_, { rejectWithValue, dispatch }) => {
         try {
-            await axios.post(
-                "/api/auth/logout",
+            await api.post(
+                "/auth/logout",
                 {},
                 {
                     withCredentials: true,
                 }
+
+
             );
 
             dispatch(logout());

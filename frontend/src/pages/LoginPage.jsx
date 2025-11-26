@@ -23,14 +23,14 @@ const LoginPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         // dispatch(loginUser(formData));
-        const result = dispatch(loginUser(formData));
+        const result = await dispatch(loginUser(formData));
 
         if (loginUser.fulfilled.match(result)) {
             toast.success("Login successful!");
-            navigate("/");
+            navigate("/profile");
         }
 
         if (loginUser.rejected.match(result)) {

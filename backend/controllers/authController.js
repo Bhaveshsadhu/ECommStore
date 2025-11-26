@@ -2,10 +2,46 @@ import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import generateTokensAndSetCookie from "../utils/tokenUtils.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
+// export const createUser = asyncHandler(async (req, res, next) => {
+//     // 1. decode request body
+//     const { name, email, password } = req.body;
+
+//     // 2. check required fields
+//     if (!name || !email || !password) {
+//         return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     // 3. check if user already exists
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//         return res.status(400).json({ message: "User already exists" });
+//     }
+
+//     // 4. create user (password hashing will run by schema pre-save hook)
+//     const user = await User.create({ name, email, password });
+
+
+//     // 5. generate tokens (PASS USER ID, not email)
+//     const accessToken = generateTokensAndSetCookie(res, user._id);
+
+//     // 6. return safe user object
+//     const safeUser = {
+//         id: user._id,
+//         name: user.name,
+//         email: user.email,
+//     };
+
+//     return res.status(201).json({
+//         message: "User created successfully",
+//         user: safeUser,
+//         accessToken,
+//     });
+// })
 export const createUser = asyncHandler(async (req, res, next) => {
     // 1. decode request body
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, address, role } = req.body;
 
     // 2. check required fields
     if (!name || !email || !password) {
@@ -18,18 +54,38 @@ export const createUser = asyncHandler(async (req, res, next) => {
         return res.status(400).json({ message: "User already exists" });
     }
 
-    // 4. create user (password hashing will run by schema pre-save hook)
-    const user = await User.create({ name, email, password });
+    // 4. handle profile image (multer)
+    let avatarUrl = null;
+    if (req.file) {
+        avatarUrl = `/uploads/${req.file.originalname}`;
+        // if using cloudinary, I will update this later
+    }
 
+    // 5. create user (password hashing handled by schema pre-save hook)
+    const user = await User.create({
+        name,
+        email,
+        password,
+        phone,
+        address,
+        role: role || "user",
+        avatar: avatarUrl,
+        createdAt: new Date(),
+    });
 
-    // 5. generate tokens (PASS USER ID, not email)
+    // 6. generate tokens
     const accessToken = generateTokensAndSetCookie(res, user._id);
 
-    // 6. return safe user object
+    // 7. return safe user object
     const safeUser = {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+        avatar: user.avatar,
+        createdAt: user.createdAt,
     };
 
     return res.status(201).json({
@@ -37,7 +93,8 @@ export const createUser = asyncHandler(async (req, res, next) => {
         user: safeUser,
         accessToken,
     });
-})
+});
+
 
 export const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
