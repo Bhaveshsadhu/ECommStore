@@ -28,6 +28,7 @@ export const verifyRefreshToken = (token) => {
     }
 }
 
+
 const generateTokens = (res, userId) => {
     const accessToken = jwt.sign({ userId }, JWT_ACCESS_SECRET, { expiresIn: '15m' });
     const refreshToken = jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
@@ -48,5 +49,18 @@ const generateTokens = (res, userId) => {
 
     return { accessToken, refreshToken };
 };
+
+export const generateAccessTokens = (res, userId) => {
+    const accessToken = jwt.sign({ userId }, JWT_ACCESS_SECRET, { expiresIn: '15m' });
+
+    res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    return { accessToken };
+}
 
 export default generateTokens;

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './database/db.js';
 import userRoute from './routers/user.router.js';
 import errorHandler from './middlewares/error.middleware.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -13,6 +14,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 app.use(express.json());
+app.use(cookieParser());
 
 // Connect to the database
 connectDB();

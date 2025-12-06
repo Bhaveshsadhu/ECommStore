@@ -22,14 +22,14 @@ client.on("error", (err) => {
     console.error("Redis connection error:", err);
 });
 
-// try {
-//     await client.set("foo", "bar");
-//     const value = await client.get("foo");
-//     console.log("Redis test value:", value);
-// } finally {
-//     client.disconnect();
-// }
 
-export const storeRefreshToken = async (refreshToken) => {
-    await client.set("refreshToken:", refreshToken, "EX", 7 * 24 * 60 * 60); // Expires in 7 days
+
+export const storeRefreshToken = async (userId, refreshToken) => {
+    await client.set(`refreshToken:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // Expires in 7 days
+}
+export const deleteRefreshToken = async (userId) => {
+    await client.del(`refreshToken:${userId}`);
+}
+export const getStoredRefreshToken = async (userId) => {
+    return await client.get(`refreshToken:${userId}`);
 }
