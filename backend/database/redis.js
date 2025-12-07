@@ -33,3 +33,10 @@ export const deleteRefreshToken = async (userId) => {
 export const getStoredRefreshToken = async (userId) => {
     return await client.get(`refreshToken:${userId}`);
 }
+export const getFeatureProducts = async () => {
+    const data = await client.get("featured_products");
+    return data ? JSON.parse(data) : null;
+}
+export const setFeatureProducts = async (products) => {
+    await client.set("featured_products", JSON.stringify(products));
+}
