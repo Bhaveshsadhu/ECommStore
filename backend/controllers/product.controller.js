@@ -84,11 +84,10 @@ export const deleteProduct = async (req, res, next) => {
 
         res.json({ message: "Product deleted successfully" });
     } catch (error) {
-        console.log("Error in deleteProduct controller", error.message);
-        res.status(500).json({ message: "Server error", error: error.message });
+        next(error);
     }
 }
-export const getFeaturedProducts = async (req, res) => {
+export const getFeaturedProducts = async (req, res, next) => {
     try {
         let featuredProducts = await getFeatureProducts();
         if (featuredProducts) {
@@ -110,6 +109,71 @@ export const getFeaturedProducts = async (req, res) => {
 
         res.json(featuredProducts);
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+        next(error);
     }
 };
+
+export const getRecommendedProducts = async (req, res, next) => {
+    try {
+        const products = await Product.aggregate([
+            {
+                $sample: { size: 4 },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    image: 1,
+                    price: 1,
+                },
+            },
+        ]);
+
+        res.status(200).json({
+            status: "success",
+            message: "Recommended products fetched successfully",
+            data: products,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+export const getProductsByCategory = async (req, res, next) => {
+    const { category } = req.params;
+    try {
+        const products = await Product.find({ category: { $regex: new RegExp("^" + category + "$", "i") } }); //$options: "i" → case-insensitive search
+        res.status(200).json({
+            status: "success",
+            results: products.length,
+            data: products
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+export const toggleFeaturedProduct = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (product) {
+            product.isFeatured = !product.isFeatured;
+            const updatedProduct = await product.save();
+            await updateFeaturedProductsCache();
+            res.json(updatedProduct);
+        } else {
+            res.status(404).json({ message: "Product not found" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+async function updateFeaturedProductsCache() {
+    try {
+        // The lean() method  is used to return plain JavaScript objects instead of full Mongoose documents. This can significantly improve performance
+
+        const featuredProducts = await Product.find({ isFeatured: true }).lean();
+        await setFeatureProducts(featuredProducts);
+    } catch (error) {
+        next(error);
+    }
+}
