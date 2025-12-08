@@ -4,39 +4,39 @@ import bcrypt from "bcryptjs";
 const User = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: [true, "Name is required"],
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: [true, "Email is required"],
         unique: true,
         lowercase: true,
         trim: true
     },
     password: {
         type: String,
-        required: true
+        required: [true, "Password is required"],
+        minlength: [6, "Password must be at least 6 characters long"],
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['customer', 'admin'],
+        default: 'customer'
     },
     avatar: {
         type: String,
         default: null
     },
-    cart: [
+    cartItems: [
         {
             productId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product',
-                required: true
             },
             quantity: {
                 type: Number,
-                required: true
+                default: 1,
             }
         }
     ]
