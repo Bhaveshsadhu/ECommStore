@@ -6,6 +6,7 @@ import connectDB from './database/db.js';
 import userRoute from './routers/user.router.js';
 import productRoute from './routers/product.router.js';
 import cartRoutes from "./routers/cart.router.js";
+import couponRoutes from "./routers/coupon.route.js";
 import errorHandler from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 
@@ -39,5 +40,7 @@ app.use('/api/user', userRoute);
 app.use('/api/product', productRoute);
 // cart routes
 app.use("/api/cart", cartRoutes);
+// coupon routes
+app.use("/api/coupons", couponRoutes);
 // Global error handling middleware
 app.use(errorHandler);
