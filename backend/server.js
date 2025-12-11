@@ -8,6 +8,7 @@ import productRoute from './routers/product.router.js';
 import cartRoutes from "./routers/cart.router.js";
 import couponRoutes from "./routers/coupon.route.js";
 import paymentRoutes from "./routers/payment.route.js";
+import analyticsRoutes from "./routers/analytics.route.js";
 import errorHandler from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 
@@ -45,5 +46,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/coupons", couponRoutes);
 // payment routes
 app.use("/api/payments", paymentRoutes);
+// analytics routes
+app.use("/api/analytics", analyticsRoutes);
 // Global error handling middleware
 app.use(errorHandler);
