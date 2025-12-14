@@ -12,6 +12,7 @@ import analyticsRoutes from "./routers/analytics.route.js";
 import errorHandler from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors";
+import path from 'path';
 
 const app = express();
 
@@ -32,6 +33,8 @@ app.use(cors({
 }));
 
 const PORT = process.env.PORT || 5000;
+
+// const __dirname = path.resolve()
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
@@ -57,3 +60,15 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 // Global error handling middleware
 app.use(errorHandler);
+
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend/dist')));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send('API is running....');
+    });
+}
