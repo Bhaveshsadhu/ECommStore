@@ -16,6 +16,8 @@ export const getAllProducts = async (req, res, next) => {
 }
 export const addNewProduct = async (req, res, next) => {
     try {
+        // console.log("add new product", req.body)
+
         const { name, description, price, image, category, isFeatured } = req.body;
 
         let cloudinaryResponse = null;
@@ -174,6 +176,6 @@ async function updateFeaturedProductsCache() {
         const featuredProducts = await Product.find({ isFeatured: true }).lean();
         await setFeatureProducts(featuredProducts);
     } catch (error) {
-        next(error);
+        console.error("Error updating featured products cache", error);
     }
 }

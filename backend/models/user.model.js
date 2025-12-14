@@ -46,15 +46,13 @@ const User = new mongoose.Schema({
     });
 
 
-User.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    // Hashing logic can be added here
+User.pre('save', async function () {
+    if (!this.isModified('password')) return;
+
     const saltRounds = 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
-
 });
+
 User.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 }

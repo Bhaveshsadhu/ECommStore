@@ -64,6 +64,7 @@ export const getDailySalesData = async (startDate, endDate) => {
 
             return {
                 date,
+                name: date, // keep a consistent key for charting libs
                 sales: foundData?.sales || 0,
                 revenue: foundData?.revenue || 0,
             };

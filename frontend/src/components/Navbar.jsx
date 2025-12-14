@@ -1,14 +1,14 @@
-import React from 'react'
 import { ShoppingCart, UserPlus, LogIn, LogOut, Lock } from "lucide-react";
-import { Link } from "react-router-dom"
-const Navbar = () => {
-    const isAdmin = false; // Replace with actual admin check
-    const user = null; // Replace with actual user authentication check
-    const cart = [1, 2]; // Replace with actual cart data
+import { Link } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
 
-    const logout = () => {
-        // Implement logout functionality
-    };
+const Navbar = () => {
+    const { user, logout } = useUserStore();
+    const isAdmin = user?.data.role === "admin";
+    // console.log("user", user)
+    // console.log("isAdmin", isAdmin);
+    const { cart } = useCartStore();
 
     return (
         <header className='fixed top-0 left-0 w-full bg-gray-900 bg-opacity-90 backdrop-blur-md shadow-lg z-40 transition-all duration-300 border-b border-emerald-800'>
@@ -88,7 +88,6 @@ const Navbar = () => {
                 </div>
             </div>
         </header>
-    )
-}
-
-export default Navbar
+    );
+};
+export default Navbar;

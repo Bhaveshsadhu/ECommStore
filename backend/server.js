@@ -11,6 +11,7 @@ import paymentRoutes from "./routers/payment.route.js";
 import analyticsRoutes from "./routers/analytics.route.js";
 import errorHandler from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
+import cors from "cors";
 
 const app = express();
 
@@ -19,10 +20,16 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Connect to the database
 connectDB();
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 
 const PORT = process.env.PORT || 5000;
 
@@ -39,7 +46,7 @@ app.get('/api/health', (req, res) => {
 // user routes
 app.use('/api/user', userRoute);
 // product routes
-app.use('/api/product', productRoute);
+app.use('/api/products', productRoute);
 // cart routes
 app.use("/api/cart", cartRoutes);
 // coupon routes
