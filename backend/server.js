@@ -12,7 +12,6 @@ import analyticsRoutes from "./routers/analytics.route.js";
 import errorHandler from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors";
-import path from 'path';
 
 const app = express();
 
